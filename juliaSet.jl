@@ -1,0 +1,53 @@
+# see https://hackernoon.com/julia-and-julia-sets-e5a6fa3de7a7 for parallel version
+using Plots
+function julia(x, y, width, height, c)
+    # Scale a bit of trial and error here for the scale
+    z = ((y/width)*2.7 - 1.3) + ((x/height)*4.5 - 2.5)im
+    for i = 1:255
+        z = z^2 + c
+        if abs(z) >= 2
+            return i
+        end
+    end
+    return 0
+end
+
+
+gr() #use gr backend but plots includes most popular plotting libraries
+
+height = 800
+width = 800
+
+function julia_set(height, width, c)
+    [julia(x, y, width, height, c) for x = 1:height, y = 1:width]
+end
+
+nr_frames = 100
+
+e = 2.71828
+#c = 0.285+(0*im)  #different values of c here
+c = 0.7885e^(0*3.1415*im);
+
+#This is where it gets different from hackernoon
+dat = julia_set(height,width,c)
+
+for i in 1:nr_frames
+    c = 0.7885e^((i/50)*3.1415*im) #set between 0 and 2pi
+    #c = 0.285+(i*0.001*im)
+    data = julia_set(height,width,c)
+    global dat = cat(dat,data,dims=3)
+    #println(i)  #im a debugging pro
+end
+
+
+println(size(dat))
+
+file_name = "julia_set2.gif"
+anim = @animate for i = 1:nr_frames #indexing starts at 1 for julia
+    d = dat[:,:,i]
+    heatmap(d, size=(width,height), color=:prism, leg=false) #lighttest or lightrainbow is easier on the eyes
+    println(i*100/nr_frames) #progress of render
+end
+
+
+gif(anim, file_name, fps=10)
