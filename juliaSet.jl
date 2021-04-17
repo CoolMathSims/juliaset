@@ -6,7 +6,7 @@ function julia(x, y, width, height, c)
     for i = 1:255
         z = z^2 + c
         if abs(z) >= 2
-            return i
+            return -i
         end
     end
     return 0
@@ -25,15 +25,17 @@ end
 nr_frames = 100
 
 e = 2.71828
-#c = 0.285+(0*im)  #different values of c here
-c = 0.7885e^(0*3.1415*im);
-
+c = 0.285+(0.005*im)  #different values of c here
+#c = 0.7885e^(0*3.1415*im);
+#c = -0.7269+(0.1889*im)
 #This is where it gets different from hackernoon
 dat = julia_set(height,width,c)
 
 for i in 1:nr_frames
-    c = 0.7885e^((i/50)*3.1415*im) #set between 0 and 2pi
-    #c = 0.285+(i*0.001*im)
+    #c = 0.7885e^((i/50)*3.1415*im) #set between 0 and 2pi
+    c = 0.285+(i*0.001*im)
+    #step = i*0.001
+    #c = -0.7269+((0.1889+step)*im)
     data = julia_set(height,width,c)
     global dat = cat(dat,data,dims=3)
     #println(i)  #im a debugging pro
@@ -45,7 +47,8 @@ println(size(dat))
 file_name = "julia_set2.gif"
 anim = @animate for i = 1:nr_frames #indexing starts at 1 for julia
     d = dat[:,:,i]
-    heatmap(d, size=(width,height), color=:prism, leg=false) #lighttest or lightrainbow is easier on the eyes
+    heatmap(d, size=(width,height), color=:darktest, leg=false)
+    #try prism but that is quite intense
     println(i*100/nr_frames) #progress of render
 end
 
